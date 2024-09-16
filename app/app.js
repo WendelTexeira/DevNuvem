@@ -42,59 +42,52 @@ function validarDados(campo) {
 
 /* GET */
 function listarTarefas() {
-    fetch('http://localhost:3000/api/task', {
+    fetch('https://parseapi.back4app.com/parse/classes/tasks', {
         method: 'GET',
+        headers: {
+            'X-Parse-Application-Id': 'xfbr7O9fYqZrqVoJTdcmei5VRkhu7IPJ4kfIBX0u',
+            'X-Parse-REST-API-Key': 'jksOaalBcOudSNjBUAVaEDHBrOXpUQ8m1sxzEWML',
+        }
     })
         .then(response => response.json())
         .then(tarefas => {
             const tarefasCadastradas = document.querySelector('#tarefas');
             tarefasCadastradas.innerHTML = '';
 
-            tarefas.forEach(tarefa => {
-                const id = tarefa.id || tarefa.objectId; // Verifique se a propriedade é 'id' ou 'objectId'
+            tarefas.results.forEach(tarefa => {
+                const id = tarefa.objectId;
                 const titulo = tarefa.title;
                 const descricao = tarefa.description;
-            
+
                 const cardTarefa = document.createElement('div');
                 cardTarefa.classList.add('card-tarefa');
                 tarefasCadastradas.appendChild(cardTarefa);
-            
+
                 const cardTitulo = document.createElement('div');
                 cardTitulo.innerHTML = titulo;
-            
+
                 const cardDescricao = document.createElement('div');
                 cardDescricao.innerHTML = descricao;
-            
+
                 const btnEditar = document.createElement('button');
                 btnEditar.setAttribute('class', 'btn-editar');
-                btnEditar.setAttribute('id', id); // Verifique se o ID está correto aqui
+                btnEditar.setAttribute('id', id);
                 btnEditar.addEventListener('click', () => {
-                    editarTarefa(id); // Aqui também, passar o ID correto para a função
-                });
-            
-                const btnExcluir = document.createElement('button');
-                btnExcluir.setAttribute('class', 'btn-excluir');
-                btnExcluir.setAttribute('id', id); // Verifique se o ID está correto aqui
-                btnExcluir.addEventListener('click', function () {
-                    excluirTarefa(id); // Aqui também, passar o ID correto para a função
-                });
-
-                btnEditar.addEventListener('click', () => {
-                    console.log('Editar ID:', id); // Verifique se o ID está correto aqui
                     editarTarefa(id);
                 });
-                
-                btnExcluir.addEventListener('click', () => {
-                    console.log('Excluir ID:', id); // Verifique se o ID está correto aqui
+
+                const btnExcluir = document.createElement('button');
+                btnExcluir.setAttribute('class', 'btn-excluir');
+                btnExcluir.setAttribute('id', id);
+                btnExcluir.addEventListener('click', function () {
                     excluirTarefa(id);
                 });
-            
+
                 cardTarefa.appendChild(cardTitulo);
                 cardTarefa.appendChild(cardDescricao);
                 cardTarefa.appendChild(btnEditar);
                 cardTarefa.appendChild(btnExcluir);
             });
-            
         })
         .catch(error => console.error('Erro ao listar tarefas:', error));
 }
@@ -104,9 +97,11 @@ function cadastrarTarefa() {
     const titulo = listaTarefas.titulo;
     const descricao = listaTarefas.descricao;
 
-    fetch('http://localhost:3000/api/task', {
+    fetch('https://parseapi.back4app.com/parse/classes/tasks', {
         method: 'POST',
         headers: {
+            'X-Parse-Application-Id': 'xfbr7O9fYqZrqVoJTdcmei5VRkhu7IPJ4kfIBX0u',
+            'X-Parse-REST-API-Key': 'jksOaalBcOudSNjBUAVaEDHBrOXpUQ8m1sxzEWML',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -124,16 +119,16 @@ function cadastrarTarefa() {
         .catch(error => console.error('Erro ao cadastrar tarefa:', error));
 }
 
-
-
 /* PUT */
 function atualizarTarefa(id) {
     const titulo = document.querySelector('#titulo').value;
     const descricao = document.querySelector('#descricao').value;
 
-    fetch(`http://localhost:3000/api/task/${id}`, {
+    fetch(`https://parseapi.back4app.com/parse/classes/tasks/${id}`, {
         method: 'PUT',
         headers: {
+            'X-Parse-Application-Id': 'xfbr7O9fYqZrqVoJTdcmei5VRkhu7IPJ4kfIBX0u',
+            'X-Parse-REST-API-Key': 'jksOaalBcOudSNjBUAVaEDHBrOXpUQ8m1sxzEWML',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -141,37 +136,39 @@ function atualizarTarefa(id) {
             description: descricao
         }),
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Erro ao atualizar a tarefa');
-        }
-        return response.json();
-    })
-    .then(data => {
-        alerta.classList.add('sucesso');
-        alerta.innerHTML = 'Tarefa atualizada';
-        listarTarefas();
-    })
-    .catch(error => console.error('Erro ao atualizar tarefa:', error));
+        .then(response => response.json())
+        .then(data => {
+            alerta.classList.add('sucesso');
+            alerta.innerHTML = 'Tarefa atualizada';
+            listarTarefas();
+        })
+        .catch(error => console.error('Erro ao atualizar tarefa:', error));
 }
-
 
 /* DELETE */
 function excluirTarefa(id) {
-    fetch(`http://localhost:3000/api/task/${id}`, {
+    fetch(`https://parseapi.back4app.com/parse/classes/tasks/${id}`, {
         method: 'DELETE',
+        headers: {
+            'X-Parse-Application-Id': 'xfbr7O9fYqZrqVoJTdcmei5VRkhu7IPJ4kfIBX0u',
+            'X-Parse-REST-API-Key': 'jksOaalBcOudSNjBUAVaEDHBrOXpUQ8m1sxzEWML',
+        },
     })
-    .then(response => {
-        listarTarefas();
-    })
-    .catch(error => console.error('Erro ao excluir tarefa:', error));
+        .then(response => response.json())
+        .then(data => {
+            listarTarefas();
+        })
+        .catch(error => console.error('Erro ao excluir tarefa:', error));
 }
-
 
 /* GET by id */
 function editarTarefa(id) {
-    fetch(`http://localhost:3000/api/task/${id}`, {
+    fetch(`https://parseapi.back4app.com/parse/classes/tasks/${id}`, {
         method: 'GET',
+        headers: {
+            'X-Parse-Application-Id': 'xfbr7O9fYqZrqVoJTdcmei5VRkhu7IPJ4kfIBX0u',
+            'X-Parse-REST-API-Key': 'jksOaalBcOudSNjBUAVaEDHBrOXpUQ8m1sxzEWML',
+        },
     })
         .then(response => response.json())
         .then(tarefa => {
