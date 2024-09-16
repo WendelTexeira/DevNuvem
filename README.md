@@ -42,5 +42,5 @@ A documentação da API está disponível no Swagger através do seguinte link:
 
 1. **Clonar o repositório**
 
-   ```bash``
+   ```bash
    git clone: [https://github.com/WendelTexeira/DevNuvem.git](https://github.com/WendelTexeira/DevNuvem.git)
