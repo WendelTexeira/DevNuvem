@@ -8,6 +8,10 @@ btnCadastrar.addEventListener('click', handleCadastrar);
 const btnLimpar = document.querySelector('#btnLimpar');
 btnLimpar.style.display = 'none';
 
+// Variável para armazenar os dados da tarefa
+let dadosTarefa = {};
+
+// Função para receber dados do formulário
 function receberDados() {
     const nome = document.querySelector('#titulo');
     const descricao = document.querySelector('#descricao');
@@ -27,8 +31,8 @@ function receberDados() {
         return false;
     }
 
-    // Adiciona o objeto no array
-    listarTarefas = {
+    // Armazena os dados da tarefa
+    dadosTarefa = {
         nome: nome.value,
         descricao: descricao.value,
     };
@@ -36,6 +40,7 @@ function receberDados() {
     return true;
 }
 
+// Função para validar os dados
 function validarDados(campo) {
     return campo !== '' ? true : false;
 }
@@ -47,13 +52,11 @@ function listarTarefas() {
     })
     .then(response => response.json())
     .then(data => {
-        // Log da resposta para depuração
         console.log('Resposta da API:', data);
 
         const tarefasCadastradas = document.querySelector('#tarefas');
         tarefasCadastradas.innerHTML = '';
 
-        // Verifique se o dado é um array
         if (Array.isArray(data)) {
             data.forEach(tarefa => {
                 const id = tarefa.id;
@@ -98,18 +101,17 @@ function listarTarefas() {
 
 /* POST */
 function cadastrarTarefa() {
-    const nome = listarTarefas.nome;
-    const descricao = listarTarefas.descricao;
+    if (!dadosTarefa.nome || !dadosTarefa.descricao) {
+        console.error('Dados da tarefa inválidos.');
+        return;
+    }
 
     fetch('https://backtaskhive1-vqh14r8m.b4a.run/api/task', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            nome: nome,
-            descricao: descricao
-        }),
+        body: JSON.stringify(dadosTarefa),
     })
         .then(response => response.json())
         .then(data => {
@@ -126,7 +128,6 @@ function atualizarTarefa(id) {
     const nome = document.querySelector('#titulo').value;
     const descricao = document.querySelector('#descricao').value;
 
-    // Log dos dados para depuração
     console.log('Atualizando tarefa:', {
         id: id,
         nome: nome,
@@ -152,11 +153,8 @@ function atualizarTarefa(id) {
     .catch(error => console.error('Erro ao atualizar tarefa:', error));
 }
 
-
 /* DELETE */
 function excluirTarefa(id) {
-    console.log('ID para exclusão:', id); // Verifique o ID aqui
-
     if (!id) {
         console.error('ID não fornecido para excluir a tarefa.');
         return;
@@ -169,17 +167,20 @@ function excluirTarefa(id) {
         if (!response.ok) {
             throw new Error(`Erro na resposta da API: ${response.statusText}`);
         }
-        return response.json();
+
+        if (response.headers.get('content-length') > 0) {
+            return response.json();
+        } else {
+            return {};
+        }
     })
     .then(data => {
+        console.log('Resposta da API ao excluir:', data);
         listarTarefas();
     })
     .catch(error => console.error('Erro ao excluir tarefa:', error));
 }
 
-
-
-/* GET by id */
 /* GET by id */
 function editarTarefa(id) {
     if (!id) {
@@ -198,8 +199,8 @@ function editarTarefa(id) {
     })
     .then(tarefa => {
         if (tarefa) {
-            document.querySelector('#titulo').value = tarefa.nome;  // Ajuste de acordo com o campo correto
-            document.querySelector('#descricao').value = tarefa.descricao;  // Ajuste de acordo com o campo correto
+            document.querySelector('#titulo').value = tarefa.nome;
+            document.querySelector('#descricao').value = tarefa.descricao;
 
             btnCadastrar.innerHTML = 'Atualizar';
 
@@ -226,8 +227,6 @@ function editarTarefa(id) {
     .catch(error => console.error('Erro ao buscar tarefa:', error));
 }
 
-
-
 /* Handle cadastrar */
 function handleCadastrar(evento) {
     evento.preventDefault();
@@ -246,5 +245,4 @@ function removerAlerta(elemento, tempo) {
     }, tempo);
 }
 
-// Listar tarefas ao carregar a página
 listarTarefas();
