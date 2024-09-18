@@ -1,26 +1,26 @@
 const alerta = document.querySelector('.alerta');
 
-// Ação do button Cadastrar
+// Ação do botão Cadastrar
 const btnCadastrar = document.querySelector('#btnCadastrar');
 btnCadastrar.addEventListener('click', handleCadastrar);
 
-// Ação do button Limpar
+// Ação do botão Limpar
 const btnLimpar = document.querySelector('#btnLimpar');
 btnLimpar.style.display = 'none';
 
 function receberDados() {
-    const titulo = document.querySelector('#titulo');
+    const nome = document.querySelector('#titulo');
     const descricao = document.querySelector('#descricao');
     alerta.classList.remove('sucesso');
 
     // Verifica se foi preenchido o título
-    if (!validarDados(titulo.value)) {
-        titulo.focus();
+    if (!validarDados(nome.value)) {
+        nome.focus();
         alerta.innerHTML = 'Preencha o campo título';
         return false;
     }
 
-    // Verifica se foi preenchido a descrição
+    // Verifica se foi preenchida a descrição
     if (!validarDados(descricao.value)) {
         descricao.focus();
         alerta.innerHTML = 'Preencha o campo descrição';
@@ -28,8 +28,8 @@ function receberDados() {
     }
 
     // Adiciona o objeto no array
-    listaTarefas = {
-        titulo: titulo.value,
+    listarTarefas = {
+        nome: nome.value,
         descricao: descricao.value,
     };
 
@@ -42,22 +42,23 @@ function validarDados(campo) {
 
 /* GET */
 function listarTarefas() {
-    fetch('https://parseapi.back4app.com/parse/classes/tasks', {
+    fetch('https://backtaskhive1-vqh14r8m.b4a.run/api/task', {
         method: 'GET',
-        headers: {
-            'X-Parse-Application-Id': 'xfbr7O9fYqZrqVoJTdcmei5VRkhu7IPJ4kfIBX0u',
-            'X-Parse-REST-API-Key': 'jksOaalBcOudSNjBUAVaEDHBrOXpUQ8m1sxzEWML',
-        }
     })
-        .then(response => response.json())
-        .then(tarefas => {
-            const tarefasCadastradas = document.querySelector('#tarefas');
-            tarefasCadastradas.innerHTML = '';
+    .then(response => response.json())
+    .then(data => {
+        // Log da resposta para depuração
+        console.log('Resposta da API:', data);
 
-            tarefas.results.forEach(tarefa => {
-                const id = tarefa.objectId;
-                const titulo = tarefa.title;
-                const descricao = tarefa.description;
+        const tarefasCadastradas = document.querySelector('#tarefas');
+        tarefasCadastradas.innerHTML = '';
+
+        // Verifique se o dado é um array
+        if (Array.isArray(data)) {
+            data.forEach(tarefa => {
+                const id = tarefa.id;
+                const titulo = tarefa.nome;
+                const descricao = tarefa.descricao;
 
                 const cardTarefa = document.createElement('div');
                 cardTarefa.classList.add('card-tarefa');
@@ -88,25 +89,26 @@ function listarTarefas() {
                 cardTarefa.appendChild(btnEditar);
                 cardTarefa.appendChild(btnExcluir);
             });
-        })
-        .catch(error => console.error('Erro ao listar tarefas:', error));
+        } else {
+            console.error('A resposta não é um array como esperado. Estrutura atual:', data);
+        }
+    })
+    .catch(error => console.error('Erro ao listar tarefas:', error));
 }
 
 /* POST */
 function cadastrarTarefa() {
-    const titulo = listaTarefas.titulo;
-    const descricao = listaTarefas.descricao;
+    const nome = listarTarefas.nome;
+    const descricao = listarTarefas.descricao;
 
-    fetch('https://parseapi.back4app.com/parse/classes/tasks', {
+    fetch('https://backtaskhive1-vqh14r8m.b4a.run/api/task', {
         method: 'POST',
         headers: {
-            'X-Parse-Application-Id': 'xfbr7O9fYqZrqVoJTdcmei5VRkhu7IPJ4kfIBX0u',
-            'X-Parse-REST-API-Key': 'jksOaalBcOudSNjBUAVaEDHBrOXpUQ8m1sxzEWML',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            title: titulo,
-            description: descricao
+            nome: nome,
+            descricao: descricao
         }),
     })
         .then(response => response.json())
@@ -121,59 +123,83 @@ function cadastrarTarefa() {
 
 /* PUT */
 function atualizarTarefa(id) {
-    const titulo = document.querySelector('#titulo').value;
+    const nome = document.querySelector('#titulo').value;
     const descricao = document.querySelector('#descricao').value;
 
-    fetch(`https://parseapi.back4app.com/parse/classes/tasks/${id}`, {
+    // Log dos dados para depuração
+    console.log('Atualizando tarefa:', {
+        id: id,
+        nome: nome,
+        descricao: descricao
+    });
+
+    fetch(`https://backtaskhive1-vqh14r8m.b4a.run/api/task/${id}`, {
         method: 'PUT',
         headers: {
-            'X-Parse-Application-Id': 'xfbr7O9fYqZrqVoJTdcmei5VRkhu7IPJ4kfIBX0u',
-            'X-Parse-REST-API-Key': 'jksOaalBcOudSNjBUAVaEDHBrOXpUQ8m1sxzEWML',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            title: titulo,
-            description: descricao
+            nome: nome,
+            descricao: descricao
         }),
     })
-        .then(response => response.json())
-        .then(data => {
-            alerta.classList.add('sucesso');
-            alerta.innerHTML = 'Tarefa atualizada';
-            listarTarefas();
-        })
-        .catch(error => console.error('Erro ao atualizar tarefa:', error));
+    .then(response => response.json())
+    .then(data => {
+        alerta.classList.add('sucesso');
+        alerta.innerHTML = 'Tarefa atualizada';
+        listarTarefas();
+    })
+    .catch(error => console.error('Erro ao atualizar tarefa:', error));
 }
+
 
 /* DELETE */
 function excluirTarefa(id) {
-    fetch(`https://parseapi.back4app.com/parse/classes/tasks/${id}`, {
+    console.log('ID para exclusão:', id); // Verifique o ID aqui
+
+    if (!id) {
+        console.error('ID não fornecido para excluir a tarefa.');
+        return;
+    }
+
+    fetch(`https://backtaskhive1-vqh14r8m.b4a.run/api/task/${id}`, {
         method: 'DELETE',
-        headers: {
-            'X-Parse-Application-Id': 'xfbr7O9fYqZrqVoJTdcmei5VRkhu7IPJ4kfIBX0u',
-            'X-Parse-REST-API-Key': 'jksOaalBcOudSNjBUAVaEDHBrOXpUQ8m1sxzEWML',
-        },
     })
-        .then(response => response.json())
-        .then(data => {
-            listarTarefas();
-        })
-        .catch(error => console.error('Erro ao excluir tarefa:', error));
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro na resposta da API: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        listarTarefas();
+    })
+    .catch(error => console.error('Erro ao excluir tarefa:', error));
 }
 
+
+
+/* GET by id */
 /* GET by id */
 function editarTarefa(id) {
-    fetch(`https://parseapi.back4app.com/parse/classes/tasks/${id}`, {
+    if (!id) {
+        console.error('ID não fornecido para editar a tarefa.');
+        return;
+    }
+
+    fetch(`https://backtaskhive1-vqh14r8m.b4a.run/api/task/${id}`, {
         method: 'GET',
-        headers: {
-            'X-Parse-Application-Id': 'xfbr7O9fYqZrqVoJTdcmei5VRkhu7IPJ4kfIBX0u',
-            'X-Parse-REST-API-Key': 'jksOaalBcOudSNjBUAVaEDHBrOXpUQ8m1sxzEWML',
-        },
     })
-        .then(response => response.json())
-        .then(tarefa => {
-            document.querySelector('#titulo').value = tarefa.title;
-            document.querySelector('#descricao').value = tarefa.description;
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro na resposta da API: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(tarefa => {
+        if (tarefa) {
+            document.querySelector('#titulo').value = tarefa.nome;  // Ajuste de acordo com o campo correto
+            document.querySelector('#descricao').value = tarefa.descricao;  // Ajuste de acordo com o campo correto
 
             btnCadastrar.innerHTML = 'Atualizar';
 
@@ -193,9 +219,14 @@ function editarTarefa(id) {
 
                 btnLimpar.click();
             });
-        })
-        .catch(error => console.error('Erro ao buscar tarefa:', error));
+        } else {
+            console.error('Tarefa não encontrada.');
+        }
+    })
+    .catch(error => console.error('Erro ao buscar tarefa:', error));
 }
+
+
 
 /* Handle cadastrar */
 function handleCadastrar(evento) {

@@ -1,4 +1,5 @@
 import { Task } from "../Models/Task.js";
+
 /**
  * @swagger
  * tags:
@@ -26,8 +27,8 @@ import { Task } from "../Models/Task.js";
  */
 export const getAllTask = async (request, response) => {
   try {
-    const task = await Task.findAll();
-    response.status(200).json(task);
+    const tasks = await Task.findAll();
+    response.status(200).json(tasks);
   } catch (error) {
     response.status(500).json({ error: error.message });
   }

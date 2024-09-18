@@ -11,7 +11,7 @@ const options = {
         },
         servers: [
             {
-                url: 'http://localhost:3000/api',
+                url: 'https://backtaskhive1-vqh14r8m.b4a.run/api',
             },
         ],
         
