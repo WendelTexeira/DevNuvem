@@ -30,7 +30,7 @@ O TaskHive é uma aplicação que permite aos usuários criar, gerenciar e organ
 
 O projeto está configurado para consumir o seguinte endpoint:
 
-- **Endpoint para tarefas**: [https://parseapi.back4app.com/parse/classes/tasks](https://parseapi.back4app.com/parse/classes/tasks)
+- **Endpoint para tarefas**: [https://backtaskhive1-vqh14r8m.b4a.run/api/task](https://backtaskhive1-vqh14r8m.b4a.run/api/task)
 
 ## Documentação da API
 
